@@ -6,6 +6,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -46,7 +48,13 @@ import lombok.ToString;
 public class Transaction implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	
+	public static enum TransactionType{
+		DEBIT,
+		CREDIT,
+		;
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_number_gen_seq")
 	@GenericGenerator(name = "transaction_number_gen_seq", strategy = "com.abcbank.accountmaintenance.entity.seqgenerator.StringSequenceIdentifier", parameters = {
@@ -60,10 +68,11 @@ public class Transaction implements Serializable {
 	
 	@Column(name = "amount")
 	private BigDecimal amount;
-
+	
+	@Enumerated(EnumType.STRING)
 	@Column(name = "discriminator", nullable = false)
-	private String discriminator;
-
+	private TransactionType discriminator;
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Builder.Default
 	private Date transactionDate = new Date();

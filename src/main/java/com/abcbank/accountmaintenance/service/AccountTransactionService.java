@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.abcbank.accountmaintenance.config.TransactionLock;
 import com.abcbank.accountmaintenance.entity.Account;
 import com.abcbank.accountmaintenance.entity.Transaction;
+import com.abcbank.accountmaintenance.entity.Transaction.TransactionType;
 import com.abcbank.accountmaintenance.repository.TransactionRepository;
 
 @Service
@@ -54,7 +55,7 @@ public class AccountTransactionService {
 			insureBalance(amount, account);
 
 			account.setBalance(account.getBalance().subtract(amount));
-			Transaction tx = Transaction.builder().account(account).amount(amount).discriminator("C").build();
+			Transaction tx = Transaction.builder().account(account).amount(amount).discriminator(TransactionType.DEBIT).build();
 			account.getTransactions().add(tx);
 
 			accountService.saveUpdate(account);
@@ -66,28 +67,33 @@ public class AccountTransactionService {
 
 	@Transactional
 	public void transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount) {
-		Account fromAccount = accountService.findByAccountNumber(fromAccountNumber);
-		// check sufficient balance before accruing lock
-		insureBalance(amount, fromAccount);
-
+		//order the coount to prevent deadlock (a,b) then (b,c) then (c,a) OR (a,b) then (b,a)
+		String lockSmallestFirst = fromAccountNumber;
+		String lockgigerNest = toAccountNumber;
+		if(fromAccountNumber.compareTo(toAccountNumber) > 0) {
+			lockSmallestFirst = toAccountNumber;
+			lockgigerNest = fromAccountNumber;
+		}
 		try {
-			txLock.lock(fromAccountNumber);
-			// reload entity after lock - no other transaction performing transfer or withdraw at this point
-			this.refreshEntity(fromAccount);
+			txLock.lock(lockSmallestFirst);
+			txLock.lock(lockgigerNest);
+			
+			Account fromAccount = accountService.findByAccountNumber(fromAccountNumber);
 			// check sufficient balance after accruing lock - may be previous tx has already withdraw some amount
 			insureBalance(amount, fromAccount);
 
 			BigDecimal subtractedAmt = fromAccount.getBalance().subtract(amount);
 			fromAccount.setBalance(subtractedAmt);
-			Transaction txCredit = Transaction.builder().account(fromAccount).amount(amount).discriminator("C").build();
-			fromAccount.getTransactions().add(txCredit);
+			Transaction txDebit = Transaction.builder().account(fromAccount).amount(amount).discriminator(TransactionType.DEBIT).build();
+			fromAccount.getTransactions().add(txDebit);
 
 			accountService.saveUpdate(fromAccount);
 
 			this.depositToAccount(toAccountNumber, amount);
 		}
 		finally {
-			txLock.unlock(fromAccountNumber);
+			txLock.unlock(lockgigerNest);
+			txLock.unlock(lockSmallestFirst);
 		}
 	}
 
@@ -107,7 +113,7 @@ public class AccountTransactionService {
 
 		Account account = accountService.findByAccountNumber(accountNumber);
 		account.setBalance(account.getBalance().add(amount));
-		Transaction tx = Transaction.builder().account(account).amount(amount).discriminator("D").build();
+		Transaction tx = Transaction.builder().account(account).amount(amount).discriminator(TransactionType.CREDIT).build();
 		account.getTransactions().add(tx);
 
 		return this.accountService.saveUpdate(account);

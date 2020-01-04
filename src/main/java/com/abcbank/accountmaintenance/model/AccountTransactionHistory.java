@@ -9,6 +9,7 @@ import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;
 
 import com.abcbank.accountmaintenance.entity.Transaction;
+import com.abcbank.accountmaintenance.entity.Transaction.TransactionType;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -51,7 +52,7 @@ public class AccountTransactionHistory implements Serializable {
 				if (null != amount) {
 					BigDecimal scalledAmount = amount.setScale(2, RoundingMode.HALF_UP);
 					destination.setAmount(
-							"D".equals(source.getDiscriminator()) ? scalledAmount : scalledAmount.negate());
+							source.getDiscriminator() == TransactionType.CREDIT ? scalledAmount : scalledAmount.negate());
 
 				}
 				destination.setCreatedDate(source.getAccount().getCreatedDate());

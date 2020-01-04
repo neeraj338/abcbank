@@ -27,6 +27,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -58,6 +60,7 @@ public class Account implements Serializable {
 			@Parameter(name = StringSequenceIdentifier.NUMBER_FORMAT_PARAMETER, value = "%010d") })
 
 	@EqualsAndHashCode.Include
+	@ApiModelProperty(hidden = true)
 	private String accountNumber;
 
 	@Column(name = "account_holder")
