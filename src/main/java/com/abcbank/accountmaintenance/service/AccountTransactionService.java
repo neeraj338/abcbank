@@ -84,7 +84,7 @@ public class AccountTransactionService {
 
 			accountService.saveUpdate(fromAccount);
 
-			this.deposit(toAccountNumber, amount);
+			this.depositToAccount(toAccountNumber, amount);
 		}
 		finally {
 			txLock.unlock(fromAccountNumber);
@@ -93,6 +93,18 @@ public class AccountTransactionService {
 
 	@Transactional
 	public Account deposit(String accountNumber, BigDecimal amount) {
+		
+		try {
+			txLock.lock(accountNumber);
+			return this.depositToAccount(accountNumber, amount);
+		}
+		finally {
+			txLock.unlock(accountNumber);
+		}
+	}
+
+	private Account depositToAccount(String accountNumber, BigDecimal amount) {
+
 		Account account = accountService.findByAccountNumber(accountNumber);
 		account.setBalance(account.getBalance().add(amount));
 		Transaction tx = Transaction.builder().account(account).amount(amount).discriminator("D").build();
@@ -100,7 +112,6 @@ public class AccountTransactionService {
 
 		return this.accountService.saveUpdate(account);
 	}
-	
 
 	@Transactional
 	public List<Transaction> getTransactionHistory() {

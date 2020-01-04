@@ -95,6 +95,9 @@
                     <excludes>
                        <!-- Exclude class from test coverage -->
                        <exclude>**/*com/abcbank/accountmaintenance/app/AbcBankApplication.class</exclude>
+                       <!--  Exclude package from test coverage -->
+                       <exclude>**/*com/abcbank/accountmaintenance/entity/**</exclude>
+                       <exclude>**/*com/abcbank/accountmaintenance/model/**</exclude>
                         
                     </excludes>
                 </configuration>
