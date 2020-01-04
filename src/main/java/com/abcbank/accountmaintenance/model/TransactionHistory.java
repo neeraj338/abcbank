@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.Map;
 
+import com.abcbank.accountmaintenance.entity.Transaction.TransactionType;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -39,14 +40,15 @@ public class TransactionHistory implements Serializable {
 
 
 	public static TransactionHistory converter(Date txDate, String accountNumber,
-			Map<String, BigDecimal> descriminatorSum) {
+			Map<TransactionType, BigDecimal> descriminatorSum) {
 		TransactionHistory destination = new TransactionHistory();
 		destination.setAccountNumber(accountNumber);
 		destination.setDeposit(
-				descriminatorSum.get("D") != null ? descriminatorSum.get("D").setScale(2, RoundingMode.HALF_UP)
-						: descriminatorSum.get("D"));
-		BigDecimal ceditAmt = descriminatorSum.get("C");
-		destination.setWithdrawl(ceditAmt != null ? ceditAmt.setScale(2, RoundingMode.HALF_UP).negate() : ceditAmt);
+				descriminatorSum.get(TransactionType.CREDIT) != null 
+				? descriminatorSum.get(TransactionType.CREDIT).setScale(2, RoundingMode.HALF_UP)
+						: descriminatorSum.get(TransactionType.CREDIT));
+		BigDecimal debitAmount = descriminatorSum.get(TransactionType.DEBIT);
+		destination.setWithdrawl(debitAmount != null ? debitAmount.setScale(2, RoundingMode.HALF_UP).negate() : debitAmount);
 		destination.setTransactionDate(txDate);
 		return destination;
 	}

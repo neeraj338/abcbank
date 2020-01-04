@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS transaction;
 
 CREATE TABLE transaction (
   transaction_id varchar(250)  PRIMARY KEY,
-  discriminator char(1) NOT NULL,
+  discriminator varchar(10) NOT NULL,
   amount DECIMAL,
   transaction_date timestamp,
   account_number varchar(250),
