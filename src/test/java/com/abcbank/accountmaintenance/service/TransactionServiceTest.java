@@ -26,6 +26,7 @@ import com.abcbank.accountmaintenance.app.AbcBankApplication;
 import com.abcbank.accountmaintenance.config.RepositotyTestConfiguration;
 import com.abcbank.accountmaintenance.entity.Account;
 import com.abcbank.accountmaintenance.entity.Transaction;
+import com.abcbank.accountmaintenance.entity.Transaction.TransactionType;
 import com.abcbank.accountmaintenance.repository.AccountRepository;
 import com.abcbank.accountmaintenance.repository.TransactionRepository;
 
@@ -76,12 +77,12 @@ public class TransactionServiceTest {
 		List<Transaction> list = new ArrayList<Transaction>();
 		Transaction a1 = Transaction.builder()
 				.account(account1)
-				.amount(new BigDecimal("87.90")).discriminator("C").build();
+				.amount(new BigDecimal("87.90")).discriminator(TransactionType.DEBIT).build();
 				
-		Transaction a2 = Transaction.builder().account(account2).amount(new BigDecimal("54.70")).discriminator("D")
+		Transaction a2 = Transaction.builder().account(account2).amount(new BigDecimal("54.70")).discriminator(TransactionType.CREDIT)
 				.build();
 		Transaction a3 = Transaction.builder().account(account3).amount(new BigDecimal("54.70"))
-				.discriminator("D").build();
+				.discriminator(TransactionType.DEBIT).build();
 
 		list.add(a1);
 		list.add(a2);

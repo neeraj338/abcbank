@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.abcbank.accountmaintenance.entity.Transaction;
+import com.abcbank.accountmaintenance.entity.Transaction.TransactionType;
 import com.abcbank.accountmaintenance.model.AccountTransactionHistory;
 import com.abcbank.accountmaintenance.model.DepositToAccountModel;
 import com.abcbank.accountmaintenance.model.TransactionHistory;
@@ -82,7 +83,7 @@ public class TransactionController {
 
 		groupByDateAndAccount.forEach((k, v) -> {
 			v.forEach((key, val) -> {
-				Map<String, BigDecimal> descriminatorSum = val.stream()
+				Map<TransactionType, BigDecimal> descriminatorSum = val.stream()
 						.collect(Collectors.groupingBy(Transaction::getDiscriminator,
 								Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)));
 				
