@@ -22,7 +22,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		
-		<swagger.version>2.9.2</swagger.version>
+		<swagger.version>2.10.0</swagger.version>
 		<lombok.version>1.18.8</lombok.version>
 		<model-mapper.version>2.3.0</model-mapper.version>
 		<jacoco.version>0.8.2</jacoco.version>
